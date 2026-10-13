@@ -27,9 +27,20 @@ PRODUCTS = {
             "3. Grup K0lpri Vc & Vc+: https://t.me/+bt6-NQTqu9RhN2M1\n"
             "4. Grup Koleksi Terupdate: https://t.me/+g_oaziW5aaM0OWM1"
         ),
-        "qris_image": "qris.png",  # Pastikan file gambar qris.png ada di folder yang sama
+        "qris_base": "qris",  # Nama dasar file QRIS yang di-upload
     }
 }
+
+
+def get_qris_path(base_name):
+    # Mendeteksi otomatis ekstensi file QRIS (tanpa ekstensi, .png, .jpg, atau .jpeg)
+    possible_extensions = ["", ".png", ".jpg", ".jpeg"]
+    for ext in possible_extensions:
+        filename = base_name + ext
+        if os.path.exists(filename):
+            return filename
+    return None
+
 
 # Memori sesi pilihan produk pembeli
 user_sessions = {}
@@ -87,8 +98,10 @@ def handle_product_selection(call):
             f"3. Admin akan segera memverifikasi pesanan Anda."
         )
 
-        if os.path.exists(product["qris_image"]):
-            with open(product["qris_image"], "rb") as photo:
+        qris_file = get_qris_path(product["qris_base"])
+
+        if qris_file:
+            with open(qris_file, "rb") as photo:
                 bot.send_photo(
                     call.message.chat.id,
                     photo,
@@ -98,7 +111,7 @@ def handle_product_selection(call):
         else:
             bot.send_message(
                 call.message.chat.id,
-                f"{text}\n\n⚠️ *Catatan:* File QRIS (`{product['qris_image']}`) belum diunggah ke server.",
+                f"{text}\n\n⚠️ *Catatan:* File QRIS dengan nama `{product['qris_base']}` belum diunggah ke server.",
                 parse_mode="Markdown",
             )
 
